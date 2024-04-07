@@ -1,0 +1,71 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  PROJECT_NAME: "prom-dirsize-exporter"
+  GO_PACKAGE_NAME: "github.com/brpaz/prom-dirsize-exporter"
+
+dotenv:
+  - ".env"
+
+tasks:
+  default:
+    cmds:
+      - task -l
+    silent: true
+
+  build:
+    desc: Build the project
+    cmds:
+      - |
+        BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
+        GIT_COMMIT=$(git rev-parse HEAD)
+
+        go build -ldflags="-s -w \
+          -X {{ .GO_PACKAGE_NAME }}/internal/version.BuildDate=${BUILD_DATE} \
+          -X {{ .GO_PACKAGE_NAME }}/internal/version.Version=${VERSION} \
+          -X {{ .GO_PACKAGE_NAME }}/internal/version.GitCommit=${GIT_COMMIT} \
+          -extldflags '-static'" -a \
+        -o out/prom-dirsize-exporter ./main.go
+  build-docker:
+    desc: Build the project using Docker
+    cmds:
+      - docker buildx build --load -t {{.PROJECT_NAME}}:dev .
+
+  run:
+    desc: Runs the application using go run.
+    cmds:
+      - go run ./main.go {{.CLI_ARGS}}
+
+  install:
+    desc: Install the application
+    cmds:
+      - go install ./...
+
+  lint:
+    desc: Run golangci-lint
+    cmds:
+      - golangci-lint run
+
+  format:
+    desc: Run gofmt
+    cmds:
+      - gofumpt -w .
+  test:
+    desc: Runs Unit tests
+    cmds:
+      - mkdir -p reports
+      - gotestsum --format testname --junitfile reports/unit-tests.xml -- -coverprofile=reports/cover.out ./...
+
+  test-watch:
+    desc: Runs Unit tests in watch mode
+    cmds:
+      - gotestsum --watch --format testname
+
+  snapshot:
+    desc: Build a snapshot release
+    cmds:
+      - goreleaser check
+      - goreleaser release --snapshot --clean

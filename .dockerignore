@@ -1,0 +1,8 @@
+.lefthook
+.github
+Dockerfile
+Taskfile.yml
+.envrc
+.env
+.env.example
+.editorconfig

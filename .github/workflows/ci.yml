@@ -1,0 +1,62 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: "go.mod"
+          cache: true
+
+      - name: Setup Go Tools
+        run: |
+          go install gotest.tools/gotestsum@v1.9.0
+          go install github.com/goreleaser/goreleaser@v1.15.1
+
+      - name: Lint Go Code
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.51
+          # workaround for: https://github.com/golangci/golangci-lint-action/issues/135
+          skip-pkg-cache: true
+          only-new-issues: true
+
+      - name: Run Unit Tests
+        run: |
+          mkdir -p reports
+          gotestsum --format=testname --junitfile reports/junit.xml -- -v -coverprofile=reports/coverage.txt -covermode=atomic ./...
+
+      - name: Upload test report artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: reports/
+
+      - name: Build snapshot
+        run: |
+          goreleaser check
+          goreleaser release --snapshot --clean
+
+      - name: Upload snapshot artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: snapshot
+          path: dist/

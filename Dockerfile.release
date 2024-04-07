@@ -1,0 +1,9 @@
+# Go Releaser works by copying the already built binary into a Docker image.
+# This minimal dockerfile reflects that.
+# https://goreleaser.com/customization/docker/
+# https://blog.devgenius.io/goreleaser-build-multi-arch-docker-images-8dd9a7903675
+FROM alpine:3.19.1
+
+COPY prom-dirsize-exporter /bin
+
+ENTRYPOINT [ "/bin/prom-dirsize-exporter" ]
