@@ -7,13 +7,14 @@ pre-commit:
     lint-go:
       glob: "*.go"
       run: golangci-lint run --new
+    tests:
+      glob: "*.go"
+      run: task test
+    lint-docker:
+      glob: "Dockerfile"
+      run: task lint-docker
 
 commit-msg:
   scripts:
     "commitlint.sh":
       runner: bash
-
-pre-push:
-  commands:
-    test-go:
-      run: task test
