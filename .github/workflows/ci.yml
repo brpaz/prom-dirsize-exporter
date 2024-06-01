@@ -206,6 +206,7 @@ jobs:
         with:
           name: docker-artifact
           path: /tmp/image.tar
+          retention-days: 1
 
   publish-release:
     name: Publish release
@@ -221,6 +222,7 @@ jobs:
         with:
           name: binary-artifacts
           path: dist/
+          retention-days: 1
 
       - name: Publish release
         run: goreleaser release --clean
@@ -242,7 +244,7 @@ jobs:
         - name: Download artifact
           uses: actions/download-artifact@v4
           with:
-            name: image
+            name: docker-artifact
             path: /tmp
 
         - name: Load image
