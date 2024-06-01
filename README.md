@@ -6,6 +6,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/brpaz/prom-dirsize-exporter?style=for-the-badge)](https://goreportcard.com/report/github.com/brpaz/prom-dirsize-exporter)
 [![Latest Release](https://img.shields.io/github/v/release/brpaz/prom-dirsize-exporter?style=for-the-badge)](https://github.com/brpaz/prom-dirsize-exporter/releases/latest)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/brpaz/prom-dirsize-exporter/ci.yml?style=for-the-badge)](https://github.com/brpaz/prom-dirsize-exporter/actions/CI)
+[![Codecov](https://img.shields.io/codecov/c/github/brpaz/prom-dirsize-exporter?token=XW4EZVHUMU&style=for-the-badge)](https://codecov.io/gh/brpaz/prom-dirsize-exporter)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 ## About
@@ -23,7 +24,7 @@ directory_size_bytes{path="/path/to/your/directory",name="directory"} <size_in_b
 The recommended way to use this exporter is with Docker.
 
 ```shell
-docker run ghcr.io/brpaz/prom-dirsize-exporter:latest
+docker run --rm -p 8080:8080 -v /var:/mnt/var ghcr.io/brpaz/prom-dirsize-exporter:latest --directories /mnt/var
 ```
 
 > [!IMPORTANT]
