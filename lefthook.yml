@@ -16,5 +16,4 @@ commit-msg:
 pre-push:
   commands:
     test-go:
-      glob: "*.go"
       run: task test
