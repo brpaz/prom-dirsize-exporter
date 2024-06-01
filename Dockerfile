@@ -1,7 +1,7 @@
 # =========================================
 # Build stage
 # =========================================
-FROM --platform=$BUILDPLATFORM golang:1.22-alpine3.19 as build
+FROM --platform=$BUILDPLATFORM golang:1.22-alpine3.20 as build
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -9,15 +9,21 @@ ARG BUILD_DATE
 ARG GIT_COMMIT
 ARG VERSION
 
+ENV GOPROXY=https://proxy.golang.org
+ENV GOCACHE=/go/pkg/mod/cache
+
 WORKDIR /app
 
 COPY go.mod go.sum ./
 
-RUN go mod download && go mod verify && go mod tidy
+# Set up Go module cache directory and download dependencies
+RUN mkdir -p /go/pkg/mod/cache && \
+    go mod download && \
+    go mod verify
 
 RUN --mount=target=. \
     --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/go/pkg \
+    --mount=type=cache,target=/go/pkg/mod \
     CGO_ENABLED=0 \
     GOOS=$TARGETOS \
     GOARCH=$TARGETARCH \
@@ -32,8 +38,10 @@ RUN --mount=target=. \
 # ====================================
 # Production stage
 # ====================================
-FROM alpine:3.19
+FROM alpine:3.20
 
 COPY --from=build /out/prom-dirsize-exporter /bin
 
-ENTRYPOINT ["/bin/prom-dirsize-exporter"]
+RUN chmod +x /bin/prom-dirsize-exporter
+
+ENTRYPOINT ["prom-dirsize-exporter"]

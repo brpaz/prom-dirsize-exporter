@@ -1,9 +1,9 @@
-name: "Update Changelog"
+name: "Release"
 on:
   release:
     types: [published]
 jobs:
-  update:
+  update-changelog:
     runs-on: ubuntu-latest
 
     permissions:
@@ -30,3 +30,16 @@ jobs:
           branch: ${{ github.event.release.target_commitish }}
           commit_message: "chore(release): [skip-ci] ${{ github.event.release.tag_name }}"
           file_pattern: CHANGELOG.md
+
+  update-dockerhub-description:
+    name: Update description on DockeHub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: peter-evans/dockerhub-description@v4
+        with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+

@@ -104,6 +104,13 @@ tasks:
     cmds:
       - go run main.go
 
+  run-docker:
+    desc: Runs the application in docker
+    deps:
+      - build-docker
+    cmds:
+      - docker run -it --rm -p 8080:8080 -v $PWD:/data {{ .DEV_IMAGE_TAG }} serve --directories /data
+
   docgen:
     desc: Generate documentation using gomarkdoc
     cmds:
