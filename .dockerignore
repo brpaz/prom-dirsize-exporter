@@ -8,3 +8,5 @@ Taskfile.yml
 .editorconfig
 .devbox
 .devcontainer
+.vscode
+docs
