@@ -16,6 +16,7 @@ concurrency:
 
 env:
   TEST_IMAGE_TAG: ghcr.io/brpaz/prom-dirsize-exporter:test
+  GORELEASER_VERSION: v1.25.1
 
 jobs:
   lint-go:
@@ -133,7 +134,7 @@ jobs:
 
       - name: Install go releaser
         run: |
-          go install github.com/goreleaser/goreleaser@v1.25.1
+          go install github.com/goreleaser/goreleaser@${{ env.GORELEASER_VERSION }}
 
       - name: Publish release snapshot
         run: goreleaser release --snapshot --clean
@@ -224,12 +225,7 @@ jobs:
 
       - name: Install go releaser
         run: |
-          go install github.com/goreleaser/goreleaser@v1.25.1
-
-      - name: Install go-test-report
-        run: |
-          go install github.com/vakenbolt/go-test-report@latest
-          go-test-report version
+          go install github.com/goreleaser/goreleaser@${{ env.GORELEASER_VERSION }}
 
       - name: Download release artifacts
         uses: actions/download-artifact@v4
@@ -239,7 +235,7 @@ jobs:
           retention-days: 1
 
       - name: Publish release
-        run: goreleaser release --clean
+        run: goreleaser release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
