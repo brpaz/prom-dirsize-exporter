@@ -1,1 +1,2 @@
-echo $(head -n1 $1) | npx commitlint --color
+#!/usr/bin/env bash
+echo $(head -n1 $1) | commitlint --color

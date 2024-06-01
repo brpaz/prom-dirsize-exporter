@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/brpaz/prom-dirsize-exporter/cmd"
@@ -12,7 +13,7 @@ import (
 func main() {
 	logger, err := createLogger()
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("error creating logger: %w", err))
 	}
 
 	defer func() {
@@ -20,7 +21,7 @@ func main() {
 	}()
 
 	if err := cmd.NewRootCmd(logger).Execute(); err != nil {
-		logger.Error("Error executing command", zap.Error(err))
+		logger.Error(err.Error())
 		os.Exit(1)
 	}
 }

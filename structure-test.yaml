@@ -1,0 +1,6 @@
+schemaVersion: "2.0.0"
+commandTests:
+  - name: "Exporter is installed"
+    command: "prom-dirsize-exporter"
+    args: ["version"]
+    exitCode: 0

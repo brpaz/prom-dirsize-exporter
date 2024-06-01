@@ -46,7 +46,7 @@ func TestDirectoryCollector_Collect(t *testing.T) {
 		metrics, _ := registry.Gather()
 		assert.Equal(t, 1, len(metrics))
 		assert.Equal(t, "directory_size_bytes", metrics[0].GetName())
-		assert.Equal(t, float64(2105344), metrics[0].Metric[0].Gauge.GetValue())
+		assert.Equal(t, float64(2097152), metrics[0].Metric[0].Gauge.GetValue())
 	case timeout := <-time.After(1 * time.Second):
 		t.Fatalf("Timed out waiting for metric to be collected. %v", timeout)
 	}
@@ -76,6 +76,6 @@ func TestDirectoryCollector_Collect_WithNonExistingDirectory(t *testing.T) {
 	assert.Len(t, ch, 0)
 
 	// Check if the error was logged
-	errorLog := observedLogs.FilterMessage("Error getting directory size").All()
+	errorLog := observedLogs.FilterMessage("directory does not exist").All()
 	assert.Equal(t, 1, len(errorLog))
 }

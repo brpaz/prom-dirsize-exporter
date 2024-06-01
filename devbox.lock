@@ -1,6 +1,54 @@
 {
   "lockfile_version": "1",
   "packages": {
+    "commitlint@19.2.0": {
+      "last_modified": "2024-05-22T06:18:38Z",
+      "resolved": "github:NixOS/nixpkgs/3f316d2a50699a78afe5e77ca486ad553169061e#commitlint",
+      "source": "devbox-search",
+      "version": "19.2.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/w04mxl692ahdl1kd88m0013a0wgxl3rm-_at_commitlint_slash_cli-19.2.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/w04mxl692ahdl1kd88m0013a0wgxl3rm-_at_commitlint_slash_cli-19.2.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/gzs44lqw5ykwkysglvbacmkf8l7zi65l-_at_commitlint_slash_cli-19.2.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/gzs44lqw5ykwkysglvbacmkf8l7zi65l-_at_commitlint_slash_cli-19.2.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/292rbibsaf3qvpvrxc2prj5m2hp0nwpz-_at_commitlint_slash_cli-19.2.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/292rbibsaf3qvpvrxc2prj5m2hp0nwpz-_at_commitlint_slash_cli-19.2.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/m4z699z8f8cm6bjadpjff74s3c4dlq4c-_at_commitlint_slash_cli-19.2.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/m4z699z8f8cm6bjadpjff74s3c4dlq4c-_at_commitlint_slash_cli-19.2.0"
+        }
+      }
+    },
     "go-task@3.35.1": {
       "last_modified": "2024-03-22T11:26:23Z",
       "resolved": "github:NixOS/nixpkgs/a3ed7406349a9335cb4c2a71369b697cecd9d351#go-task",
@@ -190,6 +238,54 @@
             }
           ],
           "store_path": "/nix/store/42an0s6v8cpl7sahxhkmsz6if0pkc7qz-golangci-lint-1.57.2"
+        }
+      }
+    },
+    "gomarkdoc@1.1.0": {
+      "last_modified": "2024-05-29T10:04:41Z",
+      "resolved": "github:NixOS/nixpkgs/ac82a513e55582291805d6f09d35b6d8b60637a1#gomarkdoc",
+      "source": "devbox-search",
+      "version": "1.1.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/1m4xh60y688167n0a7knynwmgbv3g7i0-gomarkdoc-1.1.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/1m4xh60y688167n0a7knynwmgbv3g7i0-gomarkdoc-1.1.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/kdirjfqw8iprbca20b2mrbsqvw4l0dxs-gomarkdoc-1.1.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/kdirjfqw8iprbca20b2mrbsqvw4l0dxs-gomarkdoc-1.1.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/9y0rs1swnwnc83sr60s2ibx5dfz29mv5-gomarkdoc-1.1.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/9y0rs1swnwnc83sr60s2ibx5dfz29mv5-gomarkdoc-1.1.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/8dgii78rab1lm56rbh3h0b8df0ldlvv9-gomarkdoc-1.1.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/8dgii78rab1lm56rbh3h0b8df0ldlvv9-gomarkdoc-1.1.0"
         }
       }
     },

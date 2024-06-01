@@ -6,3 +6,5 @@ Taskfile.yml
 .env
 .env.example
 .editorconfig
+.devbox
+.devcontainer

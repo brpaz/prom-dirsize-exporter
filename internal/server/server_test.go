@@ -55,19 +55,19 @@ func TestMetricsServerStart_ReturnsSuccess(t *testing.T) {
 
 	// Send a test HTTP request to the server.
 	resp, err := http.Get(fmt.Sprintf("http://localhost:%d", port))
-	assert.NoError(t, err, "Expected no error when sending test request")
+	assert.NoError(t, err)
 	defer resp.Body.Close()
 
 	// Check if the response status code is OK.
-	assert.Equal(t, http.StatusOK, resp.StatusCode, "Expected status OK")
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	respBody, err := io.ReadAll(resp.Body)
-	assert.NoError(t, err, "Expected no error when reading response body")
+	assert.NoError(t, err)
 	assert.Contains(t, string(respBody), "Prometheus Directory Size Exporter is up and running")
 
 	// Stop the server
 	err = srv.Stop()
-	assert.NoError(t, err, "Expected no error when stopping the server")
+	assert.NoError(t, err)
 }
 
 // TestMetricsServerStartWithInvalidPort tests the Start method of MetricsServer with an invalid port.
@@ -94,7 +94,7 @@ func TestMetricsServerStart_WithInvalidPort_ReturnsError(t *testing.T) {
 
 	select {
 	case err := <-errCh:
-		assert.Error(t, err, "Expected error when starting the server with an invalid port")
+		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "listen tcp: address 999999: invalid port")
 	case <-time.After(timeout):
 		t.Fatal("Timed out waiting for error")
@@ -161,14 +161,14 @@ func TestMetricsServer_ServesMetricsEndpoint(t *testing.T) {
 
 			// Send a test HTTP request to the server.
 			resp, err := http.Get(metricsEndpoint)
-			assert.NoError(t, err, "Expected no error when sending test request")
+			assert.NoError(t, err)
 			defer resp.Body.Close()
 
 			// Check if the response status code is OK.
-			assert.Equal(t, http.StatusOK, resp.StatusCode, "Expected status OK")
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 			respBody, err := io.ReadAll(resp.Body)
-			assert.NoError(t, err, "Expected no error when reading response body")
+			assert.NoError(t, err)
 			assert.Contains(t, string(respBody), "go_gc_duration_seconds")
 		})
 	}

@@ -5,9 +5,8 @@
 pre-commit:
   commands:
     lint-go:
-      run: task lint
-    format-go:
-      run: task format
+      glob: "*.go"
+      run: golangci-lint run --new
 
 commit-msg:
   scripts:
@@ -17,4 +16,5 @@ commit-msg:
 pre-push:
   commands:
     test-go:
+      glob: "*.go"
       run: task test

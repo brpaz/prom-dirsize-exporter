@@ -3,69 +3,113 @@
 version: "3"
 
 vars:
-  PROJECT_NAME: "prom-dirsize-exporter"
-  GO_PACKAGE_NAME: "github.com/brpaz/prom-dirsize-exporter"
-
-dotenv:
-  - ".env"
+  PROJECT_NAME: prom-dirsize-exporter
+  BUILD_DATE:
+    sh: date -u +'%Y-%m-%dT%H:%M:%SZ'
+  GIT_COMMIT:
+    sh: git rev-parse --short HEAD 2>/dev/null || echo "unknown"
+  GIT_VERSION:
+    sh: git describe --tags --abbrev=0 2>/dev/null || echo "unknown"
+  PKG_NAME:
+    sh: awk '/^module / {print $2}' go.mod
+  DEV_IMAGE_TAG: "{{ .PROJECT_NAME }}:dev"
+env:
+  DOCKER_BUILDKIT: 1
 
 tasks:
   default:
     cmds:
       - task -l
-    silent: true
 
   build:
-    desc: Build the project
+    desc: Build the application
     cmds:
       - |
-        BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-        VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
-        GIT_COMMIT=$(git rev-parse HEAD)
-
-        go build -ldflags="-s -w \
-          -X {{ .GO_PACKAGE_NAME }}/internal/version.BuildDate=${BUILD_DATE} \
-          -X {{ .GO_PACKAGE_NAME }}/internal/version.Version=${VERSION} \
-          -X {{ .GO_PACKAGE_NAME }}/internal/version.GitCommit=${GIT_COMMIT} \
-          -extldflags '-static'" -a \
-        -o out/prom-dirsize-exporter ./main.go
+        go build \
+          -gcflags "all=-N -l" \
+          -ldflags "-s -w \
+                    -X {{ .PKG_NAME }}/cmd/version.BuildDate={{ .BUILD_DATE }} \
+                    -X {{ .PKG_NAME }}/cmd/version.GitCommit={{ .GIT_COMMIT }} \
+                    -X {{ .PKG_NAME }}/cmd/version.Version={{ .GIT_VERSION }}" \
+          -o build/{{ .PROJECT_NAME }} main.go
   build-docker:
-    desc: Build the project using Docker
+    desc: Build the application using Docker
     cmds:
-      - docker buildx build --load -t {{.PROJECT_NAME}}:dev .
+      - |
+        docker buildx build \
+          --build-arg BUILD_DATE={{ .BUILD_DATE }} \
+          --build-arg GIT_COMMIT={{ .GIT_COMMIT }} \
+          --build-arg GIT_VERSION={{ .GIT_VERSION }} \
+          --load \
+          -t {{ .DEV_IMAGE_TAG }} .
+  lint:
+    desc: Run linter
+    cmds:
+      - golangci-lint run
 
-  run:
-    desc: Runs the application using go run.
+  lint-docker:
+    desc: Lints Dockerfile
     cmds:
-      - go run ./main.go {{.CLI_ARGS}}
+      - hadolint Dockerfile
+
+  lint-fix:
+    desc: Run linter with fix
+    cmds:
+      - golangci-lint run --fix
+
+  test:
+    desc: Run unit tests
+    cmds:
+      - |
+        mkdir -p ${REPORTS_DIR}
+        gotestsum \
+          --format testname \
+          --jsonfile reports/test-result.json -- -coverprofile=${REPORTS_DIR}/coverage.out -covermode=atomic ./...
+
+        go tool cover \
+          -html=${REPORTS_DIR}/coverage.out \
+          -o ${REPORTS_DIR}/coverage.html
+
+        REPORT_JSON_FILE=${REPORTS_DIR}/test-result.json
+        if [ -f ${REPORT_JSON_FILE} ]; then
+          cat ${REPORT_JSON_FILE} | go-test-report \
+            -o ${REPORTS_DIR}/test-result.html
+        fi
+    env:
+      REPORTS_DIR: reports
+    silent: true
+
+  test-docker:
+    deps:
+      - build-docker
+    desc: Run tests against docker image
+    cmds:
+      - |
+        container-structure-test test \
+          --image {{ .DEV_IMAGE_TAG }} \
+          --config structure-test.yaml
+
+  gomod:
+    desc: Download Go modules
+    cmds:
+      - go mod download && go mod tidy
 
   install:
     desc: Install the application
     cmds:
       - go install ./...
 
-  lint:
-    desc: Run golangci-lint
+  run:
+    desc: Runs the application
     cmds:
-      - golangci-lint run
+      - go run main.go
 
-  format:
-    desc: Run gofmt
+  docgen:
+    desc: Generate documentation using gomarkdoc
     cmds:
-      - gofumpt -w .
-  test:
-    desc: Runs Unit tests
-    cmds:
-      - mkdir -p reports
-      - gotestsum --format testname --junitfile reports/unit-tests.xml -- -coverprofile=reports/cover.out ./...
-
-  test-watch:
-    desc: Runs Unit tests in watch mode
-    cmds:
-      - gotestsum --watch --format testname
+      - gomarkdoc ./... --output docs/README.md
 
   snapshot:
-    desc: Build a snapshot release
+    desc: Create a snapshot release
     cmds:
-      - goreleaser check
-      - goreleaser release --snapshot --clean
+      - goreleaser release --snapshot --rm-dist

@@ -1,7 +1,9 @@
+// Package collector defines the main Prometheus collector for directory size metrics.
 package collector
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -72,17 +74,28 @@ func (c *DirectoryCollector) Describe(ch chan<- *prometheus.Desc) {
 func (c *DirectoryCollector) Collect(ch chan<- prometheus.Metric) {
 	var wg sync.WaitGroup
 
+	c.logger.Info("start collector", zap.String("directories", strings.Join(c.directories, ",")))
+
 	for _, dir := range c.directories {
+
+		// before processing, check if the directory exists
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			c.logger.Error("directory does not exist", zap.String("directory", dir))
+			continue
+		}
+
 		wg.Add(1)
 		go func(directory string) {
-			c.logger.Info("Collecting directory size", zap.String("directory", directory))
+			c.logger.Info("collecting directory size", zap.String("directory", directory))
 			defer wg.Done()
 
 			size, err := c.getDirectorySize(directory)
 			if err != nil {
-				c.logger.Error("Error getting directory size", zap.String("directory", directory), zap.Error(err))
+				c.logger.Error("error getting directory size", zap.String("directory", directory), zap.Error(err))
 				return
 			}
+
+			c.logger.Info("directory size collected", zap.String("directory", directory), zap.Int64("size", size))
 
 			c.updateMetric(directory, size, ch)
 		}(dir)
@@ -111,20 +124,28 @@ func (c *DirectoryCollector) updateMetric(directory string, size int64, ch chan<
 	ch <- metric
 }
 
-// getDirectorySize calculates the total size of a directory
+// getDirectorySize calculates the total size of a directory using the "du" command
 func (c *DirectoryCollector) getDirectorySize(path string) (int64, error) {
-	cmd := exec.Command("du", "-s", path)
-	output, err := cmd.Output()
+	cmd := exec.Command("du", "-sb", path)
+
+	devNull, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0o644)
 	if err != nil {
-		return 0, err
+		c.logger.Error("error opening /dev/null", zap.Error(err))
 	}
+	defer devNull.Close()
+
+	cmd.Stderr = devNull
+
+	// TODO Ignoring the error is not pretty, but du always return error exit status,
+	// even for not "fatal" errors like permission denied
+	output, _ := cmd.Output()
 
 	sizeStr := strings.Fields(string(output))[0]
 	var size int64
 	_, err = fmt.Sscanf(sizeStr, "%d", &size)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("error parsing size: %w", err)
 	}
 
-	return size * 1024, nil // du returns size in 1K blocks
+	return size, nil
 }
