@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -52,7 +52,7 @@ func NewServeCmd(logger *zap.Logger) *cobra.Command {
 		Example: `prom-dirsize-exporter serve --metricsPort 8080 --metricsPath /metrics --directories /var/log:/var/tmp`,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			if err := SetFlagsFromEnv(cmd); err != nil {
-				return errors.Join(errors.New("error setting command flags from environment variables"), err)
+				return fmt.Errorf("error setting flags from environment variables: %w", err)
 			}
 
 			return nil
@@ -60,17 +60,17 @@ func NewServeCmd(logger *zap.Logger) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			dirsList, err := cmd.Flags().GetString(serviceFlagDirectories)
 			if err != nil {
-				return errors.Join(errors.New("error reading directories flag"), err)
+				return fmt.Errorf("error reading directories flag: %w", err)
 			}
 
 			metricsPath, err := cmd.Flags().GetString(serveFlagMetricsPath)
 			if err != nil {
-				return errors.Join(errors.New("error reading metricsPath flag"), err)
+				return fmt.Errorf("error reading metricsPath flag: %w", err)
 			}
 
 			metricsPort, err := cmd.Flags().GetInt(serveFlagMetricsPort)
 			if err != nil {
-				return errors.Join(errors.New("error reading metricsPort flag"), err)
+				return fmt.Errorf("error reading metricsPort flag: %w", err)
 			}
 
 			directoriesToMonitor := make([]string, 0)
