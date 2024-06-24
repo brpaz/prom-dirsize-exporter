@@ -183,7 +183,7 @@ jobs:
             type=sha
 
       - name: Build test image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           tags: ${{ env.TEST_IMAGE_TAG }}
@@ -277,7 +277,7 @@ jobs:
             password: ${{ secrets.DOCKER_PASSWORD }}
 
         - name: Build and push Docker image
-          uses: docker/build-push-action@v5
+          uses: docker/build-push-action@v6
           with:
             context: .
             platforms: linux/amd64,linux/arm64
